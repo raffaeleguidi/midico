@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "easymidi": "^2.1.0",
+    "midi": "^2.0.0"
+  }
+}
