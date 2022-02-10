@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<map mode="Program" name="Program">
+  <controls>
+    <control id="1" kind="button" chan="1" value="40"/>
+    <control id="2" kind="button" chan="1" value="41"/>
+    <control id="3" kind="button" chan="1" value="42"/>
+    <control id="4" kind="button" chan="1" value="43"/>
+    <control id="5" kind="button" chan="1" value="0"/>
+    <control id="6" kind="button" chan="1" value="1"/>
+    <control id="7" kind="button" chan="1" value="2"/>
+    <control id="8" kind="button" chan="1" value="3"/>
+  </controls>
+</map>
