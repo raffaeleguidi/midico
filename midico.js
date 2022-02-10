@@ -9,8 +9,8 @@ var output = new easymidi.Output('NUX MG-30');
 var bank = 0;
 
 mg30.on('program', function (msg) {
-  console.log("got program from mg30", msg)
-  // ricalcolare il bank
+    bank = Math.trunc(msg.number / 4)
+    console.log("bank set to", bank, "from mg30")
 });
 mg30.on('cc', function (msg) {
   // console.log("got cc from mg30", msg)
@@ -37,7 +37,7 @@ function checkClose(one, another, cb){
   }
 }
 
-function mapMidi(number){
+function remap(number){
   switch(number){
     case 0: 
     case 1: 
@@ -59,11 +59,11 @@ function mapMidi(number){
     case 2: 
     case 3: 
     default:
-    console.log(number)
+        console.log("unused switch", number)
   }
 }
 
-function fire(number){
+function handle(number){
   const lag = Date.now() - held.since;
     // check correlations
   if ( lag <= 3) {
@@ -72,18 +72,20 @@ function fire(number){
       if (combo == 0) { 
         bank--;
         if (bank < 0) bank = 31
-        console.log("bank is", bank);        
+        console.log("bank is", bank);  
+        remap(0);      
       } else if (combo == 2) {
         bank++;
         if (bank > 31) bank = 0 
         console.log("bank is", bank);
+        remap(0);      
       }
     });
     held.number = null;
   } else {
     setTimeout(function(){
       if (held.number != null) {
-        mapMidi(held.number)
+        remap(held.number)
         held.number=null; held.since=null;
       }
     }, 3)
@@ -93,6 +95,6 @@ function fire(number){
 }
 
 gboard.on('program', function (msg) {
-    fire(msg.number)
+    handle(msg.number)
 });
   
