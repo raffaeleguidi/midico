@@ -2,19 +2,20 @@ var easymidi = require('easymidi');
 
 console.log("*** midico starting ***")
 easymidi.getInputs().forEach(i => console.log("detected input:", i))
-easymidi.getOutputs().forEach(i => console.log("detected output:", i))
+easymidi.getOutputs().forEach(i => console.log("detected mg30Out:", i))
 
-var gboard = new easymidi.Input('iCON G_Boar V1.03');
-var mg30 = new easymidi.Input('NUX MG-30');
-var output = new easymidi.Output('NUX MG-30');
+var gboardIn = new easymidi.Input('iCON G_Boar V1.03');
+//var gboardOut = new easymidi.Output('iCON G_Boar V1.03');
+var mg30In = new easymidi.Input('NUX MG-30');
+var mg30Out = new easymidi.Output('NUX MG-30');
 var bank = 0;
 
-mg30.on('program', function (msg) {
+mg30In.on('program', function (msg) {
     bank = Math.trunc(msg.number / 4)
-    console.log("bank set to", bank, "from mg30")
+    console.log("bank set to", bank, "from mg30In")
 });
-mg30.on('cc', function (msg) {
-  // console.log("got cc from mg30", msg)
+mg30In.on('cc', function (msg) {
+  // console.log("got cc from mg30In", msg)
   // noop
 });
 
@@ -24,7 +25,7 @@ var held = {
 };
 
 function setScene(scene){
-  output.send('cc', {
+  mg30Out.send('cc', {
     controller: 76, // scene
     value: scene, // 0-1-2
     channel: 0
@@ -44,7 +45,7 @@ function remap(number){
     case 1: 
     case 2: 
     case 3: 
-      output.send("program", {channel: 0, number: (number + bank*4) });
+      mg30Out.send("program", {channel: 0, number: (number + bank*4) });
       console.log("sent PC", held.number)
       break;
     case 40:
@@ -95,7 +96,7 @@ function handle(number){
   }
 }
 
-gboard.on('program', function (msg) {
+gboardIn.on('program', function (msg) {
     handle(msg.number)
 });
   
