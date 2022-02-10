@@ -1,7 +1,8 @@
 var easymidi = require('easymidi');
 
-easymidi.getInputs().forEach(i => console.log("gboard:", i))
-easymidi.getOutputs().forEach(i => console.log("output:", i))
+console.log("*** midico starting ***")
+easymidi.getInputs().forEach(i => console.log("detected input:", i))
+easymidi.getOutputs().forEach(i => console.log("detected output:", i))
 
 var gboard = new easymidi.Input('iCON G_Boar V1.03');
 var mg30 = new easymidi.Input('NUX MG-30');
