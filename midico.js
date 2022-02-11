@@ -14,7 +14,7 @@ mg30In.on('program', function (msg) {
     bank = Math.trunc(msg.number / 4)
     //console.log(msg.number - bank*4)
     setLights(0,3, msg.number - bank*4);
-    setLights(40,43, 40);
+    setLights(4,6, 4);
     console.log("bank set to", bank, "from mg30In")
 });
 mg30In.on('cc', function (msg) {
@@ -56,22 +56,22 @@ function remap(number){
     case 2: 
     case 3: 
         setLights(0,3,number);
-        setLights(40,43, 40);
+        setLights(4,6, 4);
         mg30Out.send("program", {channel: 0, number: (number + bank*4) });
         console.log("sent PC", held.number)
         break;
-    case 40:
-    case 41:
-    case 42:
-        setLights(40,42,number);
-        setScene(number-40);
+    case 4:
+    case 5:
+    case 6:
+        setLights(4,6,number);
+        setScene(number-4);
         break; 
-    case 43:
-        setLights(40,42,40);
-        setLights(43,43,43);
+    case 7:
+        setLights(4,6,4);
+        setLights(7,7,7);
         setLights(0,3,0);
         setTimeout(function(){
-            setLights(43,43,44);
+            setLights(7,7,8);
         }, 1000)
         bank = 0;
         mg30Out.send("program", {channel: 0, number: 0});
