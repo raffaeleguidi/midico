@@ -5,13 +5,16 @@ easymidi.getInputs().forEach(i => console.log("detected input:", i))
 easymidi.getOutputs().forEach(i => console.log("detected mg30Out:", i))
 
 var gboardIn = new easymidi.Input('iCON G_Boar V1.03');
-//var gboardOut = new easymidi.Output('iCON G_Boar V1.03');
+var gboardOut = new easymidi.Output('iCON G_Boar V1.03');
 var mg30In = new easymidi.Input('NUX MG-30');
 var mg30Out = new easymidi.Output('NUX MG-30');
 var bank = 0;
 
 mg30In.on('program', function (msg) {
     bank = Math.trunc(msg.number / 4)
+    //console.log(msg.number - bank*4)
+    setLights(0,3, msg.number - bank*4);
+    setLights(40,43, 40);
     console.log("bank set to", bank, "from mg30In")
 });
 mg30In.on('cc', function (msg) {
@@ -39,24 +42,41 @@ function checkClose(one, another, cb){
   }
 }
 
+function setLights(start, end, on){
+    console.log("turning on led", on, "from", start, "to", end)
+    for (let index = start; index <= end; index++) {
+        gboardOut.send("noteon", { note: index, velocity: (index == on ? 127: 0), channel: 0})
+    }
+}
+
 function remap(number){
   switch(number){
     case 0: 
     case 1: 
     case 2: 
     case 3: 
-      mg30Out.send("program", {channel: 0, number: (number + bank*4) });
-      console.log("sent PC", held.number)
-      break;
+        setLights(0,3,number);
+        setLights(40,43, 40);
+        mg30Out.send("program", {channel: 0, number: (number + bank*4) });
+        console.log("sent PC", held.number)
+        break;
     case 40:
-      setScene(0);
-      break; 
     case 41:
-      setScene(1);
-      break; 
     case 42:
-      setScene(2);
-      break; 
+        setLights(40,42,number);
+        setScene(number-40);
+        break; 
+    case 43:
+        setLights(40,42,40);
+        setLights(43,43,43);
+        setLights(0,3,0);
+        setTimeout(function(){
+            setLights(43,43,44);
+        }, 1000)
+        bank = 0;
+        mg30Out.send("program", {channel: 0, number: 0});
+        console.log("going home")
+        break; 
     case 1: 
     case 2: 
     case 3: 
@@ -99,4 +119,3 @@ function handle(number){
 gboardIn.on('program', function (msg) {
     handle(msg.number)
 });
-  
