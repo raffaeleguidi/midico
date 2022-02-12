@@ -1,5 +1,6 @@
 module.exports = {
   apps : [{
+    app: 'midico',
     script: 'midico.js',
     env: {
       "MG30_MIDINAME": "NUX MG-30:NUX MG-30 MIDI 1 28:",
