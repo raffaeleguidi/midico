@@ -2,25 +2,14 @@ var easymidi = require('easymidi');
 
 console.log("*** midico starting ***")
 easymidi.getInputs().forEach(i => console.log("detected input:", i))
-easymidi.getOutputs().forEach(i => console.log("detected mg30Out:", i))
+easymidi.getOutputs().forEach(i => console.log("detected output:", i))
 
-var gboardIn = new easymidi.Input('iCON G_Boar V1.03');
-var gboardOut = new easymidi.Output('iCON G_Boar V1.03');
-var mg30In = new easymidi.Input('NUX MG-30');
-var mg30Out = new easymidi.Output('NUX MG-30');
+var gboardIn;
+var gboardOut;
+var mg30In;
+var mg30Out;
+
 var bank = 0;
-
-mg30In.on('program', function (msg) {
-    bank = Math.trunc(msg.number / 4)
-    //console.log(msg.number - bank*4)
-    setLights(0,3, msg.number - bank*4);
-    setLights(4,6, 4);
-    console.log("bank set to", bank, "from mg30In")
-});
-mg30In.on('cc', function (msg) {
-  // console.log("got cc from mg30In", msg)
-  // noop
-});
 
 var held = {
   number: null,
@@ -28,7 +17,7 @@ var held = {
 };
 
 function setScene(scene){
-  mg30Out.send('cc', {
+  mg30Out.send('cc', { 
     controller: 76, // scene
     value: scene, // 0-1-2
     channel: 0
@@ -68,8 +57,8 @@ function remap(number){
         break; 
     case 7:
         setLights(4,6,4);
-        setLights(7,7,7);
         setLights(0,3,0);
+        setLights(7,7,7);
         setTimeout(function(){
             setLights(7,7,8);
         }, 1000)
@@ -116,6 +105,43 @@ function handle(number){
   }
 }
 
-gboardIn.on('program', function (msg) {
-    handle(msg.number)
-});
+
+function resetPeripherals(){
+  setLights(4,6,4);
+  setLights(0,3,0);
+  setLights(7,7,8);
+  mg30Out.send("program", {channel: 0, number: 0 });
+  bank = 0;
+}
+
+function init(){
+  try {
+    console.log("waiting for peripherals to connect")
+    gboardIn = new easymidi.Input('iCON G_Boar V1.03')
+    gboardOut = new easymidi.Output('iCON G_Boar V1.03');
+    mg30In = new easymidi.Input('NUX MG-30');
+    mg30Out = new easymidi.Output('NUX MG-30');  
+    console.log("peripherals connected")
+
+    gboardIn.on('program', function (msg) {
+      handle(msg.number)
+    });
+    mg30In.on('program', function (msg) {
+      bank = Math.trunc(msg.number / 4)
+      //console.log(msg.number - bank*4)
+      setLights(0,3, msg.number - bank*4);
+      setLights(4,6, 4);
+      console.log("bank set to", bank, "from mg30In")
+    });
+    mg30In.on('cc', function (msg) {
+    // console.log("got cc from mg30In", msg)
+    // todo align gboard leds to scene number
+    });
+    resetPeripherals();
+  } catch (error) {
+    console.log("error", error)
+    setTimeout(init, 1000);  
+  }
+}
+
+init()
