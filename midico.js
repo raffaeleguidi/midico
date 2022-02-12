@@ -119,8 +119,8 @@ function resetPeripherals(){
 function init(){
   try {
     console.log("waiting for peripherals to connect")
-    const mg30 = easymidi.getInputs().filter(n => { return n.startsWith('NUX MG-30')}).first();
-    const gBoard = easymidi.getInputs().filter(n => { return n.startsWith('iCON G_Boar')}).first();
+    const mg30 = easymidi.getInputs().filter(n => { return n.startsWith('NUX MG-30')})[0];
+    const gBoard = easymidi.getInputs().filter(n => { return n.startsWith('iCON G_Boar')})[0];
     gboardIn = new easymidi.Input(gBoard)
     gboardOut = new easymidi.Output(gBoard);
     mg30In = new easymidi.Input(mg30);
