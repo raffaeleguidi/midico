@@ -114,13 +114,17 @@ function resetPeripherals(){
   bank = 0;
 }
 
+
+
 function init(){
   try {
     console.log("waiting for peripherals to connect")
-    gboardIn = new easymidi.Input(process.env.GBOARD_MIDINAME || 'iCON G_Boar V1.03')
-    gboardOut = new easymidi.Output(process.env.GBOARD_MIDINAME || 'iCON G_Boar V1.03');
-    mg30In = new easymidi.Input(process.env.MG30_MIDINAME || 'NUX MG-30');
-    mg30Out = new easymidi.Output(process.env.MG30_MIDINAME || 'NUX MG-30');  
+    const mg30 = easymidi.getInputs().filter(n => { return n.startsWith('NUX MG-30')}).first();
+    const gBoard = easymidi.getInputs().filter(n => { return n.startsWith('iCON G_Boar')}).first();
+    gboardIn = new easymidi.Input(gBoard)
+    gboardOut = new easymidi.Output(gBoard);
+    mg30In = new easymidi.Input(mg30);
+    mg30Out = new easymidi.Output(mg30);  
     console.log("peripherals connected")
 
     gboardIn.on('program', function (msg) {
