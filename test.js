@@ -1,19 +1,15 @@
 var easymidi = require('easymidi');
 
-easymidi.getInputs().forEach(i => console.log("gboard:", i))
-easymidi.getOutputs().forEach(i => console.log("output:", i))
+console.log("*** midico starting ***")
+easymidi.getInputs().forEach(i => console.log("detected input:", i))
+easymidi.getOutputs().forEach(i => console.log("detected output:", i))
 
-var gboard = new easymidi.Input('iCON G_Boar V1.03');
-var mg30 = new easymidi.Input('NUX MG-30');
-var output = new easymidi.Output('NUX MG-30');
+var gboardIn;
+var gboardOut;
+var mg30In;
+var mg30Out;
+
 var bank = 0;
-
-mg30.on('program', function (msg) {
-  console.log("got program from mg30", msg)
-});
-mg30.on('cc', function (msg) {
-  console.log("got cc from mg30", msg)
-});
 
 var held = {
   number: null,
@@ -21,7 +17,7 @@ var held = {
 };
 
 function setScene(scene){
-  output.send('cc', {
+  mg30Out.send('cc', { 
     controller: 76, // scene
     value: scene, // 0-1-2
     channel: 0
@@ -35,53 +31,72 @@ function checkClose(one, another, cb){
   }
 }
 
-function mapMidi(number){
+function setLights(start, end, on){
+    console.log("turning on led", on, "from", start, "to", end)
+    for (let index = start; index <= end; index++) {
+        gboardOut.send("noteon", { note: index, velocity: (index == on ? 127: 0), channel: 0})
+    }
+}
+
+function remap(number){
   switch(number){
     case 0: 
     case 1: 
     case 2: 
     case 3: 
-      output.send("program", {channel: 0, number: (number + bank*4) });
-      console.log("sent PC", held.number)
-      break;
-    case 40:
-      setScene(0);
-      break; 
-    case 41:
-      setScene(1);
-      break; 
-    case 42:
-      setScene(2);
-      break; 
+        setLights(0,3,number);
+        setLights(4,6, 4);
+        mg30Out.send("program", {channel: 0, number: (number + bank*4) });
+        console.log("sent PC", held.number)
+        break;
+    case 4:
+    case 5:
+    case 6:
+        setLights(4,6,number);
+        setScene(number-4);
+        break; 
+    case 7:
+        setLights(4,6,4);
+        setLights(0,3,0);
+        setLights(7,7,7);
+        setTimeout(function(){
+            setLights(7,7,8);
+        }, 1000)
+        bank = 0;
+        mg30Out.send("program", {channel: 0, number: 0});
+        console.log("going home")
+        break; 
     case 1: 
     case 2: 
     case 3: 
     default:
-    console.log(number)
+        console.log("unused switch", number)
   }
 }
 
-function fire(number){
+function handle(number){
   const lag = Date.now() - held.since;
     // check correlations
   if ( lag <= 3) {
     checkClose(number, held.number, function(combo){
       console.log("combo", combo);
-      if (combo == 0) { // riscrivere funzionale
+      if (combo == 0) { 
         bank--;
         if (bank < 0) bank = 31
-        console.log("bank is", bank);        
+        console.log("bank is", bank);  
+        remap(0);      
       } else if (combo == 2) {
         bank++;
         if (bank > 31) bank = 0 
         console.log("bank is", bank);
+        remap(0);      
       }
     });
     held.number = null;
   } else {
     setTimeout(function(){
       if (held.number != null) {
-        mapMidi(held.number)
+        remap(held.number)
         held.number=null; held.since=null;
       }
     }, 3)
@@ -90,75 +105,67 @@ function fire(number){
   }
 }
 
-gboard.on('program', function (msg) {
-    fire(msg.number)
-});
-  
-  // gboard.on('sysex', function (msg) {
-  //   // do something with msg
-  //   console.log("got sysex", msg)
-  // });
 
-  /*
-output.send('cc', {
-    controller: 2, // efx (overdrive)
-    value: 100, // 1-on 100-off
-    channel: 0 // 0=on 1=off
-});
-output.send('cc', {
-    controller: 76, // scene
-    value: 0, // 0-1-2
-    channel: 0
-});
-
-output.send('cc', {
-    controller: 7, // modulation
-    value: 0,
-    channel: 0 // 0=on 1=off
-});
-
- output.send('program', {
-     number: 0, // 0=01A-127=32D
-     channel: 0
- });
-*/
-
-  /*
-return
+function resetPeripherals(){
+  setLights(4,6,4);
+  setLights(0,3,0);
+  setLights(7,7,8);
+  mg30Out.send("program", {channel: 0, number: 0 });
+  bank = 0;
+}
 
 
+function getPeripherals(){
+  const inputs = easymidi.getInputs();
+  const mg30 = inputs.filter(n => { return n.startsWith('NUX MG-30')});
+  const gBoard = inputs.filter(n => { return n.startsWith('iCON G_Boar')});
+  return {
+    mg30: mg30.length > 0 ? mg30[0] : null,
+    gBoard: gBoard.length > 0 ? gBoard[0] : null,
+  }  
+}
 
+function init(){
+  try {
+    console.log("waiting for peripherals to connect");
+    const peripherals = getPeripherals();
+    if (!mg30In && peripherals.mg30) mg30In = new easymidi.Input(peripherals.mg30) {
+      mg30In.on('program', function (msg) {
+        bank = Math.trunc(msg.number / 4)
+        //console.log(msg.number - bank*4)
+        setLights(0,3, msg.number - bank*4);
+        setLights(4,6, 4);
+        console.log("bank set to", bank, "from mg30In")
+      });
+      mg30In.on('cc', function (msg) {
+        console.log("got cc from mg30In", msg)
+        // todo align gboard leds to scene number
+      });  
+      console.log("mg30 connected");
+    };
+    if (!mg30Out && peripherals.mg30) { 
+      mg30Out = new easymidi.Output(peripherals.mg30);  
+    }
+    if (!gboardIn && peripherals.gBoard) {
+      gboardIn = new easymidi.Input(peripherals.gBoard);
+      gboardIn.on('program', function (msg) {
+        handle(msg.number)
+      });
+      console.log("g-board connected");
+    }
+    if (!gboardOut && peripherals.gBoard) gboardOut = new easymidi.Output(peripherals.gBoard);  
 
+    if (!mg30In || !mg30Out || !gboardIn || !gboardOut) {
+      throw 'peripherals not connected';
+    }
 
+    console.log("all peripherals connected")
 
+    resetPeripherals();
+  } catch (error) {
+    console.log("error", error)
+    setTimeout(init, 1000);  
+  }
+}
 
-const midi = require('midi');
-
-// Set up a new output.
-const output = new midi.Output();
-
-// Count the available output ports.
-console.log(output.getPortCount());
-
-// Get the name of a specified output port.
-console.log(output.getPortName(1));
-
-// Open the first available output port.
-output.openPort(1);
-
-// Send a MIDI message.
-//output.sendMessage([176,77,0]); // 0 accende 1 spegne
-//output.sendMessage(["0xBO",77,1]); // 0 accende 1 spegne
-//output.sendMessage([176,7,0]); // 0 accende 1 spegne
-output.sendMessage([12,0,1]); // 0 accende 1 spegne
-
-//0xBO 176 cc
-//0x0C 12 pc
-
-
-
-
-// Close the port when done.
-output.closePort();
-
-*/
+init()

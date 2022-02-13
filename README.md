@@ -10,7 +10,7 @@ sudo apt-get install libasound2-dev
 curl -sL https://deb.nodesource.com/setup_12.x | sudo bash -
 sudo apt install nodejs
 sudo npm install pm2@latest -g                          # install PM2 globally and set it up to start at boot 
-pm2 startup                                             # set pm2 to start at boot
+pm2 startup                                             # set pm2 to start at boot (follow the instructions)
 git clone https://github.com/raffaeleguidi/midico.git   # clone the repo
 npm install
 pm2 start midico.js                                     # start the midico service
