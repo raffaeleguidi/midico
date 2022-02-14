@@ -1,18 +1,23 @@
-var i2c = require('i2c-bus'),
-  i2cBus = i2c.openSync(1),
-  oled = require('oled-i2c-bus');
+// *************
+// esempi gpio
+// °°°
+// eseguire con https://www.npmjs.com/package/shelljs
+// raspi-gpio set 17 pu
+// raspi-gpio set 27 pu
+// raspi-gpio set 22 pu
+// raspi-gpio set 4 pu
 
-var opts = {
-  width: 128,
-  height: 64,
-  address: 0x3D
-};
+// mappa dei pin
+// https://docs.microsoft.com/it-it/windows/iot-core/learn-about-hardware/pinmappings/pinmappingsrpi
 
-var oled = new oled(i2cBus, opts);
+const Gpio = require('onoff').Gpio;
 
+const button1 = new Gpio(17, 'in', 'both', {debounceTimeout: 10});
+const button2 = new Gpio(27, 'in', 'both', {debounceTimeout: 10});
+const button3 = new Gpio(22, 'in', 'both', {debounceTimeout: 10});
+const button4 = new Gpio(4, 'in', 'both', {debounceTimeout: 10});
 
-var font = require('oled-font-5x7');
-
-// sets cursor to x = 1, y = 1
-oled.setCursor(1, 1);
-oled.writeString(font, 1, 'Cats and dogs are really cool animals, you know.', 1, true);
+button1.watch((err, value) => console.log("black", value));
+button2.watch((err, value) => console.log("red", value));
+button3.watch((err, value) => console.log("yellow", value));
+button4.watch((err, value) => console.log("green", value));
