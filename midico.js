@@ -165,7 +165,7 @@ function init(){
       throw 'peripherals not connected';
     }
 
-    console.log("all peripherals connected")
+    console.log(new Date(), "all peripherals connected")
 
     resetPeripherals();
   } catch (error) {
