@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "easymidi": "^2.1.0",
+    "i2c-bus": "^5.2.2",
     "oled-font-5x7": "^1.0.3",
     "oled-i2c-bus": "^1.0.12"
   }
