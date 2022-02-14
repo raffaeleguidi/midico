@@ -115,35 +115,61 @@ function resetPeripherals(){
 }
 
 
+function getPeripherals(){
+  const inputs = easymidi.getInputs();
+  const mg30 = inputs.filter(n => { return n.startsWith('NUX MG-30')});
+  const gBoard = inputs.filter(n => { return n.startsWith('iCON G_Boar')});
+  return {
+    mg30: mg30.length > 0 ? mg30[0] : null,
+    gBoard: gBoard.length > 0 ? gBoard[0] : null,
+  }  
+}
 
 function init(){
   try {
-    console.log("waiting for peripherals to connect")
-    const mg30 = easymidi.getInputs().filter(n => { return n.startsWith('NUX MG-30')})[0];
-    const gBoard = easymidi.getInputs().filter(n => { return n.startsWith('iCON G_Boar')})[0];
-    gboardIn = new easymidi.Input(gBoard)
-    gboardOut = new easymidi.Output(gBoard);
-    mg30In = new easymidi.Input(mg30);
-    mg30Out = new easymidi.Output(mg30);  
-    console.log("peripherals connected")
+    //console.log("waiting for peripherals to connect");
+    if (!mg30In) console.log(new Date(), "mg30 not connected");
+    if (!gboardIn) console.log(new Date(), "g-board not connected");
+    const peripherals = getPeripherals();
+    if (!mg30In && peripherals.mg30) {
+      mg30In = new easymidi.Input(peripherals.mg30); 
+      mg30In.on('program', function (msg) {
+        bank = Math.trunc(msg.number / 4)
+        //console.log(msg.number - bank*4)
+        setLights(0,3, msg.number - bank*4);
+        setLights(4,6, 4);
+        console.log("bank set to", bank, "from mg30In")
+      });
+      mg30In.on('cc', function (msg) {
+        console.log("got cc from mg30In", msg)
+        // todo align gboard leds to scene number
+      });  
+      console.log(new Date(), "mg30 connected");
+    };
+    if (!mg30Out && peripherals.mg30) { 
+      mg30Out = new easymidi.Output(peripherals.mg30);  
+    }
+    if (!gboardIn && peripherals.gBoard) {
+      gboardIn = new easymidi.Input(peripherals.gBoard);
+      gboardIn.on('program', function (msg) {
+        handle(msg.number)
+      });
+      console.log(new Date(), "g-board connected");
+    }
+    if (!gboardOut && peripherals.gBoard) {
+      gboardOut = new easymidi.Output(peripherals.gBoard);  
+      setLights(7,7,7);
+    }
 
-    gboardIn.on('program', function (msg) {
-      handle(msg.number)
-    });
-    mg30In.on('program', function (msg) {
-      bank = Math.trunc(msg.number / 4)
-      //console.log(msg.number - bank*4)
-      setLights(0,3, msg.number - bank*4);
-      setLights(4,6, 4);
-      console.log("bank set to", bank, "from mg30In")
-    });
-    mg30In.on('cc', function (msg) {
-    // console.log("got cc from mg30In", msg)
-    // todo align gboard leds to scene number
-    });
+    if (!mg30In || !mg30Out || !gboardIn || !gboardOut) {
+      throw 'peripherals not connected';
+    }
+
+    console.log("all peripherals connected")
+
     resetPeripherals();
   } catch (error) {
-    console.log("error", error)
+    //console.log("error", error)
     setTimeout(init, 1000);  
   }
 }
