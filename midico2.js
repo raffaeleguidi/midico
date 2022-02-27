@@ -192,6 +192,8 @@ function handleFootswitch(button, value){
     console.log(new Date(), "button", button, value == 0 ? "down": "up");
     if (button <= 3 && value == 0) {
         setScene(button -1);
+    } else if (button == 4){
+        resetPeripherals();
     }
 }
 
