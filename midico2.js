@@ -197,7 +197,7 @@ function handleFootswitch(button, value){
     if (button <= 3 && value == 0) {
         setScene(button -1);
     } else if (button == 4){
-        resetPeripherals();
+        //resetPeripherals();
     }
 }
 
