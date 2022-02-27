@@ -120,11 +120,15 @@ function handle(number){
 
 
 function resetPeripherals(){
-  setLights(4,6,4);
-  setLights(0,3,0);
-  setLights(7,7,8);
-  mg30Out.send("program", {channel: 0, number: 0 });
-  bank = 0;
+    try {
+        setLights(4,6,4);
+        setLights(0,3,0);
+        setLights(7,7,8);
+    } catch (error) {
+        // noop        
+    }
+    mg30Out.send("program", {channel: 0, number: 0 });
+    bank = 0;
 }
 
 
