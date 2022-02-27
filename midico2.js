@@ -8,10 +8,10 @@ if (shell.exec('./init.sh').code !== 0) {
     shell.exit(1);
 }
 
-const button1 = new Gpio(4, 'in', 'both', {debounceTimeout: 2});
-const button2 = new Gpio(27, 'in', 'both', {debounceTimeout: 2});
-const button3 = new Gpio(17, 'in', 'both', {debounceTimeout: 2});
-const button4 = new Gpio(22, 'in', 'both', {debounceTimeout: 2});
+const button1 = new Gpio(4, 'in', 'both', {debounceTimeout: 10});
+const button2 = new Gpio(27, 'in', 'both', {debounceTimeout: 10});
+const button3 = new Gpio(17, 'in', 'both', {debounceTimeout: 10});
+const button4 = new Gpio(22, 'in', 'both', {debounceTimeout: 10});
 
 console.log("*** midico 2 starting ***")
 easymidi.getInputs().forEach(i => console.log("detected input:", i))
@@ -197,6 +197,7 @@ function handleFootswitch(button, value){
     if (button <= 3 && value == 0) {
         setScene(button -1);
     } else if (button == 4){
+        setScene(2); // temp workaround
         //resetPeripherals();
     }
 }

@@ -13,6 +13,6 @@ sudo npm install pm2@latest -g                          # install PM2 globally a
 pm2 startup                                             # set pm2 to start at boot (follow the instructions)
 git clone https://github.com/raffaeleguidi/midico.git   # clone the repo
 npm install
-pm2 start midico.js                                     # start the midico service
+pm2 start midico.js -o "/dev/null" -e "/dev/null"       # start the midico service without logs
 pm2 save                                                # save the service for boot at startup
 ```
