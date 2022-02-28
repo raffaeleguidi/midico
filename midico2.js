@@ -10,8 +10,8 @@ if (shell.exec('./init.sh').code !== 0) {
 
 const button1 = new Gpio(4, 'in', 'both', {debounceTimeout: 10});
 const button2 = new Gpio(27, 'in', 'both', {debounceTimeout: 10});
-const button3 = new Gpio(17, 'in', 'both', {debounceTimeout: 10});
-const button4 = new Gpio(22, 'in', 'both', {debounceTimeout: 10});
+const button3 = new Gpio(22, 'in', 'both', {debounceTimeout: 10});
+const button4 = new Gpio(17, 'in', 'both', {debounceTimeout: 10});
 
 console.log("*** midico 2 starting ***")
 easymidi.getInputs().forEach(i => console.log("detected input:", i))
@@ -45,9 +45,13 @@ function checkClose(one, another, cb){
 }
 
 function setLights(start, end, on){
-    console.log("turning on led", on, "from", start, "to", end)
-    for (let index = start; index <= end; index++) {
-        gboardOut.send("noteon", { note: index, velocity: (index == on ? 127: 0), channel: 0})
+    try { // gboard could not be connected            
+        console.log("turning on led", on, "from", start, "to", end)
+        for (let index = start; index <= end; index++) {
+            gboardOut.send("noteon", { note: index, velocity: (index == on ? 127: 0), channel: 0})
+        }
+    } catch (error) {
+        // noop
     }
 }
 
@@ -145,8 +149,8 @@ function getPeripherals(){
 function init(){
   try {
     //console.log("waiting for peripherals to connect");
-    if (!mg30In) console.log(new Date(), "mg30 not connected");
-    if (!gboardIn) console.log(new Date(), "g-board not connected");
+    // if (!mg30In) console.log(new Date(), "mg30 not connected");
+    // if (!gboardIn) console.log(new Date(), "g-board not connected");
     const peripherals = getPeripherals();
     if (!mg30In && peripherals.mg30) {
       mg30In = new easymidi.Input(peripherals.mg30); 
@@ -194,11 +198,17 @@ function init(){
 
 function handleFootswitch(button, value){
     console.log(new Date(), "button", button, value == 0 ? "down": "up");
-    if (button <= 3 && value == 0) {
-        setScene(button -1);
-    } else if (button == 4){
-        setScene(2); // temp workaround
-        //resetPeripherals();
+    if (value == 0){ // down
+        switch(button){
+            case 1: 
+            case 2: 
+            case 3:
+                setScene(button-1);
+                break;
+            case 4:
+                resetPeripherals();
+                break;
+        }
     }
 }
 
