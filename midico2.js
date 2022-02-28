@@ -44,6 +44,11 @@ function checkClose(one, another, cb){
   }
 }
 
+const led = new Gpio(18, 'out');
+function setLeds(number, value){ // 0=on
+    led.writeSync(value); 
+}
+
 function setLights(start, end, on){
     try { // gboard could not be connected            
         console.log("turning on led", on, "from", start, "to", end)
@@ -148,6 +153,7 @@ function getPeripherals(){
 
 function init(){
   try {
+    setLeds(0, 0);
     //console.log("waiting for peripherals to connect");
     // if (!mg30In) console.log(new Date(), "mg30 not connected");
     // if (!gboardIn) console.log(new Date(), "g-board not connected");
@@ -199,6 +205,7 @@ function init(){
 function handleFootswitch(button, value){
     console.log(new Date(), "button", button, value == 0 ? "down": "up");
     if (value == 0){ // down
+        setLeds(button, 1);
         switch(button){
             case 1: 
             case 2: 
@@ -209,6 +216,8 @@ function handleFootswitch(button, value){
                 resetPeripherals();
                 break;
         }
+    } else {
+        setLeds(button, 1);
     }
 }
 
