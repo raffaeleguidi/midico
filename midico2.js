@@ -31,7 +31,7 @@ var held = {
 
 function setScene(scene){
   mg30Out.send('cc', { 
-    controller: 76, // scene
+    controller: 79, // scene - 76 with f2.5.x becomes 79 with 3.1.7
     value: scene, // 0-1-2
     channel: 0
   });
