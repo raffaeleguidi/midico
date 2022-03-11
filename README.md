@@ -14,5 +14,6 @@ pm2 startup                                             # set pm2 to start at bo
 git clone https://github.com/raffaeleguidi/midico.git   # clone the repo
 npm install
 pm2 start midico.js -o "/dev/null" -e "/dev/null"       # start the midico service without logs
+# use midico2.js instead for the onboard footswitches
 pm2 save                                                # save the service for boot at startup
 ```
