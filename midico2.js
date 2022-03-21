@@ -23,6 +23,7 @@ var mg30In;
 var mg30Out;
 
 var bank = 0;
+var currentScene = 0;
 
 var held = {
   number: null,
@@ -30,12 +31,20 @@ var held = {
 };
 
 function setScene(scene){
+  currentScene = scene;
   mg30Out.send('cc', { 
     controller: 79, // scene - 76 with f2.5.x becomes 79 with 3.1.7
     value: scene, // 0-1-2
     channel: 0
   });
   console.log("switched to scene", scene);
+}
+
+function patchUp(){
+  console.log("patch up")
+}
+function patchDown(){
+  console.log("patch down")
 }
 
 function checkClose(one, another, cb){
@@ -208,12 +217,24 @@ function handleFootswitch(button, value){
         setLeds(button, 1);
         switch(button){
             case 1: 
+              if (currentScene == 0) {
+                setScene(1);
+              } else if (currentScene == 1) {
+                setScene(0);
+              } else if (currentScene == 2) {
+                setScene(1);
+              } 
             case 2: 
-            case 3:
-                setScene(button-1);
+            if (currentScene == 2) {
+              setScene(0);
+            } else {
+              setScene(2);
+            } 
+          case 3:
+                patchDown();
                 break;
             case 4:
-                resetPeripherals();
+                patchUp();
                 break;
         }
     } else {
