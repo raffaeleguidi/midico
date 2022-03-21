@@ -243,10 +243,10 @@ function handleFootswitch(button, value){
             }
             break;
           case 3:
-              patchUp();
+              patchDown();
               break;
           case 3:
-              patchDown();
+              patchUp();
               break;
       }
   } else {
