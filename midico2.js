@@ -242,7 +242,7 @@ function handleFootswitch(button, value){
               setScene(2);
             }
             break;
-          case 3:
+          case 2:
               patchDown();
               break;
           case 3:
