@@ -47,13 +47,13 @@ function patchUp(){
   console.log("patch up")
   mg30Out.send("program", {channel: 0, number: currentPatch + 1 });
   currentPatch++; 
-  if (currentPatch == 32) currentPatch = 0;
+  if (currentPatch == 128) currentPatch = 0;
 }
 function patchDown(){
   console.log("patch down")
   mg30Out.send("program", {channel: 0, number: currentPatch - 1 });
   currentPatch--; 
-  if (currentPatch == -1) currentPatch = 31;
+  if (currentPatch == -1) currentPatch = 127;
 }
 
 function checkClose(one, another, cb){
@@ -243,12 +243,12 @@ function handleFootswitch(button, value){
             }
             break;
           case 2:
-              patchDown();
-              break;
-          case 3:
               patchUp();
               break;
-      }
+          case 3:
+            patchDown();
+            break;
+        }
   } else {
       setLeds(button, 1);
   }
