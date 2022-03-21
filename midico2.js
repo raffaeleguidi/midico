@@ -216,7 +216,7 @@ function handleFootswitch(button, value){
     if (value == 0){ // down
         setLeds(button, 1);
         switch(button){
-            case 1: 
+            case 0: 
               if (currentScene == 0) {
                 setScene(1);
               } else if (currentScene == 1) {
@@ -224,16 +224,16 @@ function handleFootswitch(button, value){
               } else if (currentScene == 2) {
                 setScene(1);
               } 
-            case 2: 
-            if (currentScene == 2) {
-              setScene(0);
-            } else {
-              setScene(2);
-            } 
-          case 3:
+            case 1: 
+              if (currentScene == 2) {
+                setScene(0);
+              } else {
+                setScene(2);
+              } 
+            case 2:
                 patchDown();
                 break;
-            case 4:
+            case 3:
                 patchUp();
                 break;
         }
@@ -242,9 +242,9 @@ function handleFootswitch(button, value){
     }
 }
 
-button1.watch((err, value) => handleFootswitch(1,value));
-button2.watch((err, value) => handleFootswitch(2,value));
-button4.watch((err, value) => handleFootswitch(3,value));
-button3.watch((err, value) => handleFootswitch(4,value));
+button1.watch((err, value) => handleFootswitch(0,value));
+button2.watch((err, value) => handleFootswitch(1,value));
+button4.watch((err, value) => handleFootswitch(2,value));
+button3.watch((err, value) => handleFootswitch(3,value));
 
 init()
