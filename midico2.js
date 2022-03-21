@@ -47,13 +47,13 @@ function patchUp(){
   console.log("patch up")
   currentPatch++; 
   if (currentPatch == 128) currentPatch = 0;
-  mg30Out.send("program", {channel: 0, number: currentPatch + 1 });
+  mg30Out.send("program", {channel: 0, number: currentPatch });
 }
 function patchDown(){
   console.log("patch down")
   currentPatch--; 
   if (currentPatch == -1) currentPatch = 127;
-  mg30Out.send("program", {channel: 0, number: currentPatch - 1 });
+  mg30Out.send("program", {channel: 0, number: currentPatch });
 }
 
 function setPatch(number){
