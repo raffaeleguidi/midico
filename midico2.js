@@ -56,6 +56,13 @@ function patchDown(){
   if (currentPatch == -1) currentPatch = 127;
 }
 
+function setPatch(number){
+  console.log("setting patch", number)
+  mg30Out.send("program", {channel: 0, number: number });
+  setScene(0);
+  currentPatch=number; 
+}
+
 function checkClose(one, another, cb){
   if (one -1 == another || another -1 == one) {
     cb(Math.min(one, another))
@@ -194,6 +201,7 @@ function init(){
     };
     if (!mg30Out && peripherals.mg30) { 
       mg30Out = new easymidi.Output(peripherals.mg30);  
+      setPatch(0);
     }
     if (!gboardIn && peripherals.gBoard) {
       gboardIn = new easymidi.Input(peripherals.gBoard);
