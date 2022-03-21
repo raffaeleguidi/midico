@@ -24,6 +24,7 @@ var mg30Out;
 
 var bank = 0;
 var currentScene = 0;
+var currentPatch = 0;
 
 var held = {
   number: null,
@@ -40,11 +41,19 @@ function setScene(scene){
   console.log("switched to scene", scene);
 }
 
+
+
 function patchUp(){
   console.log("patch up")
+  mg30Out.send("program", {channel: 0, number: currentPatch + 1 });
+  currentPatch++; 
+  if (currentPatch == 32) currentPatch = 0;
 }
 function patchDown(){
   console.log("patch down")
+  mg30Out.send("program", {channel: 0, number: currentPatch - 1 });
+  currentPatch--; 
+  if (currentPatch == -1) currentPatch = 31;
 }
 
 function checkClose(one, another, cb){
@@ -146,6 +155,7 @@ function resetPeripherals(){
         // noop        
     }
     mg30Out.send("program", {channel: 0, number: 0 });
+    setScene(0);
     bank = 0;
 }
 
@@ -212,34 +222,36 @@ function init(){
 
 
 function handleFootswitch(button, value){
-    console.log(new Date(), "button", button, value == 0 ? "down": "up");
-    if (value == 0){ // down
-        setLeds(button, 1);
-        switch(button){
-            case 0: 
-              if (currentScene == 0) {
-                setScene(1);
-              } else if (currentScene == 1) {
-                setScene(0);
-              } else if (currentScene == 2) {
-                setScene(1);
-              } 
-            case 1: 
-              if (currentScene == 2) {
-                setScene(0);
-              } else {
-                setScene(2);
-              } 
-            case 2:
-                patchDown();
-                break;
-            case 3:
-                patchUp();
-                break;
-        }
-    } else {
-        setLeds(button, 1);
-    }
+  console.log(new Date(), "button", button, value == 0 ? "down": "up");
+  if (value == 0){ // down
+      setLeds(button, 1);
+      switch(button){
+          case 0:
+            if (currentScene == 0) {
+              setScene(1);
+            } else if (currentScene == 1) {
+              setScene(0);
+            } else if (currentScene == 2) {
+              setScene(1);
+            }
+            break;
+          case 1:
+            if (currentScene == 2) {
+              setScene(0);
+            } else {
+              setScene(2);
+            }
+            break;
+          case 3:
+              patchUp();
+              break;
+          case 3:
+              patchDown();
+              break;
+      }
+  } else {
+      setLeds(button, 1);
+  }
 }
 
 button1.watch((err, value) => handleFootswitch(0,value));
