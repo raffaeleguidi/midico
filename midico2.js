@@ -45,15 +45,15 @@ function setScene(scene){
 
 function patchUp(){
   console.log("patch up")
-  mg30Out.send("program", {channel: 0, number: currentPatch + 1 });
   currentPatch++; 
   if (currentPatch == 128) currentPatch = 0;
+  mg30Out.send("program", {channel: 0, number: currentPatch + 1 });
 }
 function patchDown(){
   console.log("patch down")
-  mg30Out.send("program", {channel: 0, number: currentPatch - 1 });
   currentPatch--; 
   if (currentPatch == -1) currentPatch = 127;
+  mg30Out.send("program", {channel: 0, number: currentPatch - 1 });
 }
 
 function setPatch(number){
