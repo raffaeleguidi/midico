@@ -17,3 +17,10 @@ pm2 start midico.js -o "/dev/null" -e "/dev/null"       # start the midico servi
 # use midico2.js instead for the onboard footswitches
 pm2 save                                                # save the service for boot at startup
 ```
+
+## notice on armbian
+installing libasound2-dev could be needed for node-gyp to compile the midi package
+
+```
+apt install libasound2-dev
+```
